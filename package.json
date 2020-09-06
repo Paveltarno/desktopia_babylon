@@ -1,0 +1,21 @@
+{
+  "name": "desktopia",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Pavel Tarnopolsky",
+  "license": "UNLICENSED",
+  "devDependencies": {
+    "serve": "^11.3.2",
+    "ts-loader": "^8.0.3",
+    "typescript": "^4.0.2",
+    "webpack": "^4.44.1",
+    "webpack-cli": "^3.3.12"
+  },
+  "dependencies": {
+    "babylonjs": "^4.1.0"
+  }
+}
