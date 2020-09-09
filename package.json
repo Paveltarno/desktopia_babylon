@@ -6,16 +6,17 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "webpack",
-    "start": "serve ./static"
+    "start": "webpack-dev-server"
   },
   "author": "Pavel Tarnopolsky",
   "license": "UNLICENSED",
   "devDependencies": {
-    "serve": "^11.3.2",
+    "@babylonjs/core": "^4.1.0",
     "ts-loader": "^8.0.3",
     "typescript": "^4.0.2",
     "webpack": "^4.44.1",
-    "webpack-cli": "^3.3.12"
+    "webpack-cli": "^3.3.12",
+    "webpack-dev-server": "^3.11.0"
   },
   "dependencies": {
     "babylonjs": "^4.1.0"
