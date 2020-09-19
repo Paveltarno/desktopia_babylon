@@ -1,75 +1,87 @@
-// import {
-//   Engine
-// } from "@babylonjs/core/Engines/engine";
-// import {
-//   Scene
-// } from "@babylonjs/core/scene";
-// import {
-//   Vector3
-// } from "@babylonjs/core/Maths/math";
-// import {
-//   FreeCamera
-// } from "@babylonjs/core/Cameras/freeCamera";
-// import {
-//   HemisphericLight
-// } from "@babylonjs/core/Lights/hemisphericLight";
-// import {
-//   Mesh
-// } from "@babylonjs/core/Meshes/mesh";
+import * as BABYLON from '@babylonjs/core/Legacy/legacy';
 
-// import {
-//   GridMaterial
-// } from "@babylonjs/materials/grid";
+import "@babylonjs/core/Debug/debugLayer"; // Augments the scene with the debug methods
+import "@babylonjs/inspector"; // Injects a local ES6 version of the inspector to prevent automatically relying on the none compatible version
 
+class Game {
+  private _canvas: HTMLCanvasElement;
+  private _engine: BABYLON.Engine;
+  private _scene: BABYLON.Scene;
+  private _camera: BABYLON.FreeCamera;
+  private _light: BABYLON.Light;
 
-// // Required side effects to populate the Create methods on the mesh class. Without this, the bundle would be smaller but the createXXX methods from mesh would not be accessible.
-// import "@babylonjs/core/Meshes/meshBuilder";
+  constructor(canvasElementId: string) {
+    // Create canvas and engine.
+    this._canvas = document.getElementById(
+      canvasElementId
+    ) as HTMLCanvasElement;
+    this._engine = new BABYLON.Engine(this._canvas, true);
+  }
 
-import { Engine, Scene, Vector3, FreeCamera, HemisphericLight, Mesh ,StandardMaterial} from "babylonjs"
+  createScene(): void {
+    // Create a basic BJS Scene object.
+    this._scene = new BABYLON.Scene(this._engine);
 
-// Get the canvas element from the DOM.
-const canvas = document.getElementById("renderCanvas") as HTMLCanvasElement;
+    // Create a FreeCamera, and set its position to (x:0, y:5, z:-10).
+    this._camera = new BABYLON.FreeCamera(
+      'camera1',
+      new BABYLON.Vector3(0, 5, -10),
+      this._scene
+    );
 
-// Associate a Babylon Engine to it.
-const engine = new Engine(canvas);
+    // Target the camera to scene origin.
+    this._camera.setTarget(BABYLON.Vector3.Zero());
 
-// Create our first scene.
-var scene = new Scene(engine);
+    // Attach the camera to the canvas.
+    this._camera.attachControl(this._canvas, false);
 
-// This creates and positions a free camera (non-mesh)
-var camera = new FreeCamera("camera1", new Vector3(0, 5, -10), scene);
+    // Create a basic light, aiming 0,1,0 - meaning, to the sky.
+    this._light = new BABYLON.HemisphericLight(
+      'light1',
+      new BABYLON.Vector3(0, 1, 0),
+      this._scene
+    );
 
-// This targets the camera to scene origin
-camera.setTarget(Vector3.Zero());
+    // Create a built-in "sphere" shape; with 16 segments and diameter of 2.
+    let sphere = BABYLON.MeshBuilder.CreateSphere(
+      'sphere1',
+      { segments: 5, diameter: 2 },
+      this._scene
+    );
 
-// This attaches the camera to the canvas
-camera.attachControl(canvas, true);
+    // Move the sphere upward 1/2 of its height.
+    sphere.position.y = 1;
 
-// This creates a light, aiming 0,1,0 - to the sky (non-mesh)
-var light = new HemisphericLight("light1", new Vector3(0, 1, 0), scene);
+    // Create a built-in "ground" shape.
+    let ground = BABYLON.MeshBuilder.CreateGround(
+      'ground1',
+      { width: 10, height: 10, subdivisions: 2 },
+      this._scene
+    );
 
-// Default intensity is 1. Let's dim the light a small amount
-light.intensity = 0.7;
+    this._scene.debugLayer.show();
+  }
 
-// Create a grid material
-var material = new StandardMaterial("grid", scene);
+  doRender(): void {
+    // Run the render loop.
+    this._engine.runRenderLoop(() => {
+      this._scene.render();
+    });
 
-// Our built-in 'sphere' shape. Params: name, subdivs, size, scene
-var sphere = Mesh.CreateSphere("sphere1", 16, 2, scene);
+    // The canvas/window resize event handler.
+    window.addEventListener('resize', () => {
+      this._engine.resize();
+    });
+  }
+}
 
-// Move the sphere upward 1/2 its height
-sphere.position.y = 2;
+window.addEventListener('DOMContentLoaded', () => {
+  // Create the game using the 'renderCanvas'.
+  let game = new Game('renderCanvas');
 
-// Affect a material
-sphere.material = material;
+  // Create the scene.
+  game.createScene();
 
-// Our built-in 'ground' shape. Params: name, width, depth, subdivs, scene
-var ground = Mesh.CreateGround("ground1", 6, 6, 2, scene);
-
-// Affect a material
-ground.material = material;
-
-// Render every frame
-engine.runRenderLoop(() => {
-  scene.render();
+  // Start render loop.
+  game.doRender();
 });
