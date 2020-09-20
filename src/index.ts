@@ -1,63 +1,89 @@
-import * as BABYLON from '@babylonjs/core/Legacy/legacy';
+import {
+  Engine,
+  Scene,
+  Light,
+  Vector3,
+  HemisphericLight,
+  MeshBuilder,
+  ArcRotateCamera,
+  StandardMaterial,
+  MaterialHelper,
+  Color3,
+  Node,
+} from '@babylonjs/core';
 
-import "@babylonjs/core/Debug/debugLayer"; // Augments the scene with the debug methods
-import "@babylonjs/inspector"; // Injects a local ES6 version of the inspector to prevent automatically relying on the none compatible version
+import '@babylonjs/core/Debug/debugLayer'; // Augments the scene with the debug methods
+import '@babylonjs/inspector'; // Injects a local ES6 version of the inspector to prevent automatically relying on the none compatible version
+
+class Building {
+  constructor(scene: Scene, parent: Node) {
+    const box = MeshBuilder.CreateBox(
+      'building',
+      {
+        size: 1,
+      },
+      scene
+    );
+    box.position.y = .5
+    box.setParent(parent);
+  }
+}
 
 class Game {
   private _canvas: HTMLCanvasElement;
-  private _engine: BABYLON.Engine;
-  private _scene: BABYLON.Scene;
-  private _camera: BABYLON.FreeCamera;
-  private _light: BABYLON.Light;
+  private _engine: Engine;
+  private _scene: Scene;
+  private _camera: ArcRotateCamera;
+  private _light: Light;
 
   constructor(canvasElementId: string) {
     // Create canvas and engine.
     this._canvas = document.getElementById(
       canvasElementId
     ) as HTMLCanvasElement;
-    this._engine = new BABYLON.Engine(this._canvas, true);
+    this._engine = new Engine(this._canvas, true);
   }
 
   createScene(): void {
     // Create a basic BJS Scene object.
-    this._scene = new BABYLON.Scene(this._engine);
+    this._scene = new Scene(this._engine);
 
-    // Create a FreeCamera, and set its position to (x:0, y:5, z:-10).
-    this._camera = new BABYLON.FreeCamera(
+    this._camera = new ArcRotateCamera(
       'camera1',
-      new BABYLON.Vector3(0, 5, -10),
+      0,
+      1,
+      15,
+      new Vector3(0, 0, 0),
       this._scene
     );
 
     // Target the camera to scene origin.
-    this._camera.setTarget(BABYLON.Vector3.Zero());
+    this._camera.setTarget(Vector3.Zero());
 
     // Attach the camera to the canvas.
     this._camera.attachControl(this._canvas, false);
 
+    this._camera.position;
+
     // Create a basic light, aiming 0,1,0 - meaning, to the sky.
-    this._light = new BABYLON.HemisphericLight(
+    this._light = new HemisphericLight(
       'light1',
-      new BABYLON.Vector3(0, 1, 0),
+      new Vector3(0, 1, 0),
       this._scene
     );
-
-    // Create a built-in "sphere" shape; with 16 segments and diameter of 2.
-    let sphere = BABYLON.MeshBuilder.CreateSphere(
-      'sphere1',
-      { segments: 5, diameter: 2 },
-      this._scene
-    );
-
-    // Move the sphere upward 1/2 of its height.
-    sphere.position.y = 1;
 
     // Create a built-in "ground" shape.
-    let ground = BABYLON.MeshBuilder.CreateGround(
+    let ground = MeshBuilder.CreateGround(
       'ground1',
       { width: 10, height: 10, subdivisions: 2 },
       this._scene
     );
+
+    const groundMaterial = new StandardMaterial('ground', this._scene);
+    groundMaterial.diffuseColor = Color3.FromInts(1, 87, 0);
+    ground.material = groundMaterial;
+
+    new Building(this._scene, ground);
 
     this._scene.debugLayer.show();
   }
